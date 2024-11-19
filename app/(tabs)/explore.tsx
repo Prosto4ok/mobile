@@ -1,19 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 
 // Mock data for calculation history
 const mockHistoryData = [
   {
     id: '1',
-    name: '',
-    date: '',
-    operation: '',
-    amount: '',
+    name: 'Transaction 1',
+    date: '2023-10-01',
+    operation: 'Deposit',
+    amount: '$100',
   },
-
+  {
+    id: '2',
+    name: 'Transaction 2',
+    date: '2023-10-02',
+    operation: 'Withdrawal',
+    amount: '$50',
+  },
 ];
 
 export default function HistoryScreen() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkUserId = async () => {
+      const userId = await AsyncStorage.getItem('user_id');
+      if (!userId) {
+        router.push('/'); // Redirect to the main page
+      }
+    };
+
+    checkUserId(); // Call the function to check user ID
+  }, [router]);
+
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.historyItem}>
       <View style={styles.historyDetails}>

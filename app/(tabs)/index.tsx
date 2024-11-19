@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
 	View,
 	Text,
@@ -6,9 +6,13 @@ import {
 	Button,
 	StyleSheet,
 	TouchableOpacity,
-	Picker,
 	ScrollView,
 } from "react-native";
+import { Picker } from '@react-native-picker/picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
+
+
 
 export default function CalculatorScreen() {
 	const [operation, setOperation] = useState("2"); // Default to "Кубатура досок"
@@ -27,6 +31,31 @@ export default function CalculatorScreen() {
 	const [surfaceLength, setSurfaceLength] = useState("");
   const [resultVolume, setResultVolume] = useState(null);
   const [resultPrice, setResultPrice] = useState(null);
+
+  const router = useRouter();
+  useEffect(() => {
+    const checkUserId = async () => {
+      try {
+        const userId = await AsyncStorage.getItem('user_id');
+        if (!userId) {
+          router.push('/'); // Переход на главную страницу
+        }
+      } catch (error) {
+        console.error('Ошибка проверки пользователя:', error);
+      }
+    };
+
+    checkUserId();
+  }, [router]);
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('user_id'); // Очистить user_id
+      router.push('/'); // Перенаправить на главную страницу
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
 
 	const handleCalculate = () => {
     // Check for required fields
@@ -409,6 +438,10 @@ const calculatePanelVolume = () => {
             </Text>
         </View>
     )}
+	<View style={styles.footer}>
+        <Button title="Logout" onPress={handleLogout} color="#ff6347" />
+      </View>
+
 		</ScrollView>
 	);
 }
